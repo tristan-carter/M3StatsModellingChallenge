@@ -54,3 +54,46 @@ print('r^2:', r2)
 
 plt.show()
 
+
+
+# import data from excel spreadsheet
+df = pd.read_excel(r"C:\Users\ticar\Downloads\Remote-work-data.xlsx")
+
+industries = {
+    "Mining, logging, construction": 0,
+    "Manufacturing": 0,
+    "Trade, transportation, and utilities": 0,
+    "Information": 0,
+    "Financial activities": 0,
+    "Professional and business services": 0,
+    "Education and health services": 0,
+    "Leisure and hospitality": 0,
+    "Other services": 0,
+    "Government": 0,
+},
+
+numUKEmployeesByIndustryByCity = {
+    "Seattle": {
+        "Mining, logging, construction": 0,
+        "Manufacturing": 0,
+        "Trade, transportation, and utilities": 0,
+        "Information": 0,
+        "Financial activities": 0,
+        "Professional and business services": 0,
+        "Education and health services": 0,
+        "Leisure and hospitality": 0,
+        "Other services": 0,
+        "Government": 0,
+    },
+    'Omaha': industries,
+    'Scranton': industries,
+}
+
+# fills in numUKEmployeesByIndustryByCity
+
+
+
+numUSEmployeesByIndustryByCity = {
+    'Liverpool': industries,
+    'Barry': industries,
+}
