@@ -19,3 +19,5 @@ percentageByIncome={
     35000:32,
     45000:38
 }
+homeasworkplaceusage=np.array([
+])
