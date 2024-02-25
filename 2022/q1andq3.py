@@ -201,6 +201,22 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 print('Minimum r^2:', round(minimumR2, 5))
 print('Mean r^2:', round(totalR2 / numR2Values, 5))
 
+percentWorkersWhoCanWorkFromHome2024 = {
+    "Seattle": 0,
+    "Omaha": 0,
+    "Scranton": 0,
+    "Liverpool": 0,
+    "Barry (Wales)": 0,
+}
+
+percentWorkersWhoCanWorkFromHome2027 = {
+    "Seattle": 0,
+    "Omaha": 0,
+    "Scranton": 0,
+    "Liverpool": 0,
+    "Barry (Wales)": 0,
+}
+
 for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
     for city in country:
         totalWorkers2024 = 0
@@ -214,8 +230,62 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 
             totalWorkers2024 += country[city][industry][-2]
             totalWorkers2027 += country[city][industry][-1]
+        value2024 = totalWorkersWhoCanWorkFromHome2024 / totalWorkers2024 * 100
+        value2027 = totalWorkersWhoCanWorkFromHome2027 / totalWorkers2027 * 100
+
+        percentWorkersWhoCanWorkFromHome2024[city] = value2024
+        percentWorkersWhoCanWorkFromHome2027[city] = value2027
 
         print("\n")
         print(city + ":")
-        print(f'  Percent of workers who can work from home in 2024:', round(totalWorkersWhoCanWorkFromHome2024 / totalWorkers2024 * 100, 2), '%')
-        print(f'  Percent of workers who can work from home in 2027:', round(totalWorkersWhoCanWorkFromHome2027 / totalWorkers2027 * 100, 2), '%')
+        print(f'  Percent of workers who can work from home in 2024:', round(value2024, 2), '%')
+        print(f'  Percent of workers who can work from home in 2027:', round(value2027, 2), '%')
+
+# pribability of working at home per city out of remote-ready workers calculated via model for Q2
+#probabilityOfWorkingFromHomePerCity = {
+#    "Seattle": 0.2148,
+#    "Omaha": 0.2076,
+#    "Scranton": 0.2036,
+#    "Liverpool": 0.2134,
+#    "Barry (Wales)": 0.2076,
+#}
+
+probabilityOfWorkingFromHomePerCity = {
+    "Seattle": 0.4122,
+    "Omaha": 0,
+    "Scranton": 0,
+    "Liverpool": 0,
+    "Barry (Wales)": 0,
+}
+
+# model for Q3
+
+percentOfWorkersWorkingFromHomeByCity2024 = {
+    "Seattle": 0,
+    "Omaha": 0,
+    "Scranton": 0,
+    "Liverpool": 0,
+    "Barry (Wales)": 0,
+}
+
+percentOfWorkersWorkingFromHomeByCity2027 = {
+    "Seattle": 0,
+    "Omaha": 0,
+    "Scranton": 0,
+    "Liverpool": 0,
+    "Barry (Wales)": 0,
+}
+
+# multiples probability of working at home per city out of remote-ready workers by percent of workers who can work from home in 2024 and 2027
+# to get percent of workers in each city who will work from home in 2024 and 2027
+print("2024: ")
+for city in percentWorkersWhoCanWorkFromHome2024:
+    percentOfWorkersWorkingFromHomeByCity2027[city] = percentWorkersWhoCanWorkFromHome2024[city] * probabilityOfWorkingFromHomePerCity[city]
+    print("    " + city + " in 2024:")
+    print(f"    Percent of workers working from home:", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
+
+print("\n2027: ")
+for city in percentWorkersWhoCanWorkFromHome2027:
+    percentOfWorkersWorkingFromHomeByCity2027[city] = percentWorkersWhoCanWorkFromHome2027[city] * probabilityOfWorkingFromHomePerCity[city]
+    print("    " + city + " in 2027:")
+    print(f"    Percent of workers working from home:", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
