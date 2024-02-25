@@ -55,23 +55,23 @@ print('r^2:', r2)
 plt.show()
 
 
-industries = {
-    "Mining, logging, construction": [0, 0, 0, 0],
+industriesPercentAbleToWorkAtHome = {
+    "Mining, logging, construction": 0,
     "Manufacturing": 0,
-    "Trade, transportation, and utilities": 0,
-    "Information": 0,
-    "Financial activities": 0,
-    "Professional and business services": 0,
-    "Education and health services": 0,
+    "Trade, transportation, and utilities": 0.03,
+    "Information": 1,
+    "Financial activities": 0.88,
+    "Professional and business services": 0.88,
+    "Education and health services": 0.98,
     "Leisure and hospitality": 0,
-    "Other services": 0,
-    "Government": 0,
+    "Other services": 0.5,
+    "Government": 0.65,
 },
 
-USIndustryYears = [2000,2005,2010,2015,2019,2020,2021]
-UKIndustryYears = [2005,2010,2015,2019,2020,2021]
+USIndustryYears = np.array([2000,2005,2010,2015,2019])
+UKIndustryYears = np.array([2005,2010,2015,2019])
 
-numUKESployeesByIndustryByCity = {
+numUSEmployeesByIndustryByCity = {
     "Seattle": {
         "Mining, logging, construction": [101700,104700,83600,107100,127600,129900,109600],
         "Manufacturing": [212800,171300,167000,188200,184300,168400,142200],
@@ -110,7 +110,7 @@ numUKESployeesByIndustryByCity = {
     },
 }
 
-numUSEmployeesByIndustryByCity = {
+numUKEmployeesByIndustryByCity = {
     "Liverpool": {
         "Mining, logging, construction": [141000,138700,138000,150300,153500,146240],
         "Manufacturing": [80200,73900,80500,100200,107500,103120],
@@ -137,23 +137,56 @@ numUSEmployeesByIndustryByCity = {
     },
 }
 
-# plot with linear regression for each industry for each city in US
+# turn all lists into numpy arrays
+for city in numUKEmployeesByIndustryByCity:
+    for industry in numUKEmployeesByIndustryByCity[city]:
+        numUKEmployeesByIndustryByCity[city][industry] = np.array(numUKEmployeesByIndustryByCity[city][industry])
+        # removes final two years from data
+        numUKEmployeesByIndustryByCity[city][industry] = numUKEmployeesByIndustryByCity[city][industry][:-2]
+
 for city in numUSEmployeesByIndustryByCity:
     for industry in numUSEmployeesByIndustryByCity[city]:
-        plt.plot(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry])
+        numUSEmployeesByIndustryByCity[city][industry] = np.array(numUSEmployeesByIndustryByCity[city][industry])
+        # removes final two years from data
+        numUSEmployeesByIndustryByCity[city][industry] = numUSEmployeesByIndustryByCity[city][industry][:-2]
+
+
+
+# plot with linear regression for each industry for each city in US
+i = 0
+for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
+    i += 1
+    industryYears = USIndustryYears if i == 1 else UKIndustryYears
+    for city in country:
+        # set size of graph
+        plt.figure(figsize=(10, 5))
         plt.xlabel('Year')
         plt.ylabel('Number of Employees')
-        plt.title('Number of Employees by Year for ' + industry + ' in ' + city)
+        plt.title('Number of Employees by Industry over time in ' + city)
+        legendList = []
+        legendLinesList = []
+        for industry in country[city]:
+            #plt.plot(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry])
 
-        # adjusts x ticks
-        plt.xticks(np.arange(2000, 2027, 2))
+            # adjusts x ticks and rotates them 45 degrees
+            plt.xticks(np.arange(2000, 2027)[::2], rotation=40)
 
-        # plots linear regression
-        m, b = np.polyfit(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry], 1)
-        plt.plot(USIndustryYears, m*USIndustryYears + b)
+            # plots linear regression
+            m, b = np.polyfit(industryYears, country[city][industry], 1)
+            linearRegression, = plt.plot(industryYears, m*industryYears + b)
 
-        # calculates r^2
-        r2 = r2_score(numUSEmployeesByIndustryByCity[city][industry], m*USIndustryYears + b)
-        print('r^2:', r2)
+            # calculates r^2
+            r2 = r2_score(country[city][industry], m*industryYears + b)
+            #print('r^2:', r2)
 
+            # adds to legend
+            legendList.append(f'Linear Regression of {industry} number of workers, r^2: {round(r2, 2)}')
+            legendLinesList.append(Line2D([0], [0], color=linearRegression.get_color(), lw=2))
+
+            # extrapolates linear regression to 2027
+            extrapolatedYears = np.array([2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027])
+            extrapolatedNumEmployees = m*extrapolatedYears + b
+            plt.plot(extrapolatedYears, extrapolatedNumEmployees, 'r--')
+
+        plt.legend(legendList, bbox_to_anchor=(1.05, 0.8), loc='upper left')
         plt.show()
