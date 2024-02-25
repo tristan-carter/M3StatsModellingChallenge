@@ -251,8 +251,8 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 #}
 
 probabilityOfWorkingFromHomePerCity = {
-    "Seattle": 0.4122,
-    "Omaha": 0,
+    "Seattle": 0.2157,
+    "Omaha": 0.2833, # needs double checking
     "Scranton": 0,
     "Liverpool": 0,
     "Barry (Wales)": 0,
