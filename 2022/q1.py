@@ -2,6 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -152,7 +153,7 @@ for city in numUSEmployeesByIndustryByCity:
 
 
 
-# plot with linear regression for each industry for each city in US
+# plot with linear regression for each industry for each city in US and record values at 2024 and 2027
 i = 0
 for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
     i += 1
@@ -166,8 +167,6 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
         legendList = []
         legendLinesList = []
         for industry in country[city]:
-            #plt.plot(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry])
-
             # adjusts x ticks and rotates them 45 degrees
             plt.xticks(np.arange(2000, 2027)[::2], rotation=40)
 
@@ -177,7 +176,6 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 
             # calculates r^2
             r2 = r2_score(country[city][industry], m*industryYears + b)
-            #print('r^2:', r2)
 
             # adds to legend
             legendList.append(f'Linear Regression of {industry} number of workers, r^2: {round(r2, 2)}')
@@ -188,5 +186,29 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
             extrapolatedNumEmployees = m*extrapolatedYears + b
             plt.plot(extrapolatedYears, extrapolatedNumEmployees, 'r--')
 
+            # records values at 2024 and 2027 into original dictionary for cities
+            valueAt2024 = m*2024 + b
+            valueAt2027 = m*2027 + b
+            country[city][industry] = np.append(country[city][industry], valueAt2024)
+            country[city][industry] = np.append(country[city][industry], valueAt2027)
+
         plt.legend(legendList, bbox_to_anchor=(1.05, 0.8), loc='upper left')
         plt.show()
+
+for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
+    for city in country:
+        totalWorkers2024 = 0
+        totalWorkers2027 = 0
+        totalWorkersWhoCanWorkFromHome2024 = 0
+        totalWorkersWhoCanWorkFromHome2027 = 0
+        for industry in country[city]:
+            totalWorkersWhoCanWorkFromHome2024 += country[city][industry][-2] * industriesPercentAbleToWorkAtHome[industry]
+            totalWorkersWhoCanWorkFromHome2027 += country[city][industry][-1] * industriesPercentAbleToWorkAtHome[industry]
+
+            totalWorkers2024 += country[city][industry][-2]
+            totalWorkers2027 += country[city][industry][-1]
+
+        print("\n")
+        print(city + ":")
+        print(f'  Percent of workers who can work from home in 2024:', round(totalWorkersWhoCanWorkFromHome2024 / totalWorkers2024 * 100, 2), '%')
+        print(f'  Percent of workers who can work from home in 2027:', round(totalWorkersWhoCanWorkFromHome2027 / totalWorkers2027 * 100, 2), '%')
