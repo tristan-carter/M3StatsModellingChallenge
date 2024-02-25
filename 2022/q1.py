@@ -136,3 +136,24 @@ numUSEmployeesByIndustryByCity = {
         "Government": [9700,9800,10550,10850,11550,9700],
     },
 }
+
+# plot with linear regression for each industry for each city in US
+for city in numUSEmployeesByIndustryByCity:
+    for industry in numUSEmployeesByIndustryByCity[city]:
+        plt.plot(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry])
+        plt.xlabel('Year')
+        plt.ylabel('Number of Employees')
+        plt.title('Number of Employees by Year for ' + industry + ' in ' + city)
+
+        # adjusts x ticks
+        plt.xticks(np.arange(2000, 2027, 2))
+
+        # plots linear regression
+        m, b = np.polyfit(USIndustryYears, numUSEmployeesByIndustryByCity[city][industry], 1)
+        plt.plot(USIndustryYears, m*USIndustryYears + b)
+
+        # calculates r^2
+        r2 = r2_score(numUSEmployeesByIndustryByCity[city][industry], m*USIndustryYears + b)
+        print('r^2:', r2)
+
+        plt.show()
