@@ -250,6 +250,69 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 #    "Barry (Wales)": 0.2076,
 #}
 
+cities = {
+    "Seattle": {
+        "PercentageBelow20": 0.24,
+        "Percentage20To29": 0.15,
+
+        "LessthanHS": 0.072,
+        "HS": 0.191,
+        "SomeCollege": 0.295,
+        "Bachelors": 0.269,
+        "PostGraduateDegree": 0.173,
+
+        "CommuteTime": 31.6,
+    },
+    "Omaha": {
+        "PercentageBelow20": 0.28,
+        "Percentage20To29": 0.13,
+
+        "LessthanHS": 0.073,
+        "HS": 0.242,
+        "SomeCollege": 0.31,
+        "Bachelors": 0.246,
+        "PostGraduateDegree": 0.131,
+
+        "CommuteTime": 21.1,
+    },
+    "Scranton": {
+        "PercentageBelow20": 0.225,
+        "Percentage20To29": 0.123,
+
+        "LessthanHS": 0.087,
+        "HS": 0.39,
+        "SomeCollege": 0.277,
+        "Bachelors": 0.149,
+        "PostGraduateDegree": 0.095,
+
+        "CommuteTime": 23.7,
+    },
+    "Liverpool": {
+        "PercentageBelow20": 0.234,
+        "Percentage20To29": 0.162,
+
+        "LessthanHS": 0.19,
+        "HS": 0.398,
+        "SomeCollege": 0.137,
+        "Bachelors": 0.137,
+        "PostGraduateDegree": 0.137,
+
+        "CommuteTime": 29.0,
+    },
+    "Barry (Wales)": {
+        "PercentageBelow20": 0.268,
+        "Percentage20To29": 0.127,
+
+        "LessthanHS": 0.252,
+        "HS": 0.393,
+        "SomeCollege": 0.1285,
+        "Bachelors": 0.1285,
+        "PostGraduateDegree": 0.098,
+
+        "CommuteTime": 25.4,
+    }
+}
+
 probabilityOfWorkingFromHomePerCity = {
     "Seattle": 0.2157,
     "Omaha": 0.2833, # needs double checking
@@ -257,6 +320,15 @@ probabilityOfWorkingFromHomePerCity = {
     "Liverpool": 0,
     "Barry (Wales)": 0,
 }
+
+# calculates probability of working from home per city out of remote-ready workers
+for city in cities:
+    probNumerator = 0
+    # age, interpolating input stats into reference table
+    probNumerator += (cities[city]["PercentageBelow20"] * (2/20) + cities[city]["Percentage20To29"] * (5/9))*0.27 # 18-25
+    probNumerator += (cities[city]["Percentage20To29"]*(4/9) + (1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (11/46))*0.41 # 26-41
+    probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (16/46))*0.40 # 42-57
+    probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (19/46))*0.38 # 58-76
 
 # model for Q3
 
