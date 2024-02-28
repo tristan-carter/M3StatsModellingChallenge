@@ -250,8 +250,10 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
 #    "Barry (Wales)": 0.2076,
 #}
 
+# Data from reference D2 City Demographic Data
 cities = {
     "Seattle": {
+        "Country": "USA",
         "PercentageBelow20": 0.24,
         "Percentage20To29": 0.15,
 
@@ -262,8 +264,22 @@ cities = {
         "PostGraduateDegree": 0.173,
 
         "CommuteTime": 31.6,
+
+        "Lessthan10k$": 0.038,
+        "10kto20k$": 0.037,
+        "20kto30k$": 0.033,
+        "30kto40k$": 0.039,
+        "40kto50k$": 0.036,
+        "50kto60k$": 0.040,
+        "60k-75k$": 0.060,
+        "75to100k$": 0.082,
+        "100kto125k$": 0.102,
+        "125kto150k$": 0.079,
+        "150kto200k$": 0.131,
+        "Greaterthan200k$": 0.322,
     },
     "Omaha": {
+        "Country": "USA",
         "PercentageBelow20": 0.28,
         "Percentage20To29": 0.13,
 
@@ -274,8 +290,19 @@ cities = {
         "PostGraduateDegree": 0.131,
 
         "CommuteTime": 21.1,
-    },
-    "Scranton": {
+
+        "Lessthan10k$": 0.049,
+        "10kto20k$": 0.06,
+        "20kto30k$": 0.075,
+        "30kto40k$": 0.073,
+        "40kto50k$": 0.077,
+        "50kto60k$": 0.079,
+        "60k-75k$": 0.105,
+        "75to100k$": 0.135,
+        "100kto125k$": 0.096,
+        "125kto150k$": 0.071,
+        "150kto200k$": 0.09,
+        "Greaterthan200k$": 0.091,
         "PercentageBelow20": 0.225,
         "Percentage20To29": 0.123,
 
@@ -286,8 +313,23 @@ cities = {
         "PostGraduateDegree": 0.095,
 
         "CommuteTime": 23.7,
+
+        
+        "Lessthan10k$": 0.064,
+        "10kto20k$": 0.144,
+        "20kto30k$": 0.102,
+        "30kto40k$": 0.116,
+        "40kto50k$": 0.097,
+        "50kto60k$": 0.077,
+        "60k-75k$": 0.078,
+        "75to100k$": 0.092,
+        "100kto125k$": 0.059,
+        "125kto150k$": 0.054,
+        "150kto200k$": 0.035,
+        "Greaterthan200k$": 0.082,
     },
     "Liverpool": {
+        "Country": "UK",
         "PercentageBelow20": 0.234,
         "Percentage20To29": 0.162,
 
@@ -298,8 +340,17 @@ cities = {
         "PostGraduateDegree": 0.137,
 
         "CommuteTime": 29.0,
+
+        "Lessthan10k": 0,
+        "10kto15k": 0,
+        "15kto20k": 0.00,
+        "20kto30k": 0.00,
+        "30kto40k": 0.00,
+        "40kto50k": 0.00,
+        "Geaterthan50k": 0.00,
     },
     "Barry (Wales)": {
+        "Country": "UK",
         "PercentageBelow20": 0.268,
         "Percentage20To29": 0.127,
 
@@ -310,12 +361,20 @@ cities = {
         "PostGraduateDegree": 0.098,
 
         "CommuteTime": 25.4,
+
+        "Lessthan10k": 0,
+        "10kto15k": 0,
+        "15kto20k": 0.00,
+        "20kto30k": 0.00,
+        "30kto40k": 0.00,
+        "40kto50k": 0.00,
+        "Geaterthan50k": 0.00,
     }
 }
 
 probabilityOfWorkingFromHomePerCity = {
     "Seattle": 0.2157,
-    "Omaha": 0.2833, # needs double checking
+    "Omaha": 0.2833, # needs double checking 
     "Scranton": 0,
     "Liverpool": 0,
     "Barry (Wales)": 0,
@@ -324,11 +383,49 @@ probabilityOfWorkingFromHomePerCity = {
 # calculates probability of working from home per city out of remote-ready workers
 for city in cities:
     probNumerator = 0
-    # age, interpolating input stats into reference table
+    # Age, must interpolate as data ranges do not match are solution paper table ranges
     probNumerator += (cities[city]["PercentageBelow20"] * (2/20) + cities[city]["Percentage20To29"] * (5/9))*0.27 # 18-25
     probNumerator += (cities[city]["Percentage20To29"]*(4/9) + (1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (11/46))*0.41 # 26-41
     probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (16/46))*0.40 # 42-57
     probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (19/46))*0.38 # 58-76
+
+    # Commute time
+    if cities[city]["CommuteTime"] < 15:
+        probNumerator += 0.09
+    elif cities[city]["CommuteTime"] <= 30:
+        probNumerator += 0.109
+    elif cities[city]["CommuteTime"] <= 60:
+        probNumerator += 0.127
+    elif cities[city]["CommuteTime"] <= 120:
+        probNumerator += 0.167
+    elif cities[city]["CommuteTime"] > 120:
+        probNumerator += 0.474
+
+    # Education  attainment
+        
+    # degree or equivelent
+    probNumerator += (cities[city]["Bachelors"]+cities[city]["PostGraduateDegree"])*0.8701
+
+    # Below degree level
+    probNumerator += (cities[city]["HS"]+cities[city]["SomeCollege"])*0.1299
+
+    # Other qualification
+    # We don't have any data for what percentage of people have other qualifications so we can't calculate this
+
+    # None
+    probNumerator += (cities[city]["LessthanHS"])*0.6667
+
+    # Income, must also interpolate as data ranges do not match are solution paper table ranges
+
+    # Seperate by country as income data is different for UK and US
+    if cities[city]["Country"] == "UK":
+        pass
+    else:
+        pass
+    
+    probability = probNumerator/4
+    probabilityOfWorkingFromHomePerCity[city] = probability
+
 
 # model for Q3
 
