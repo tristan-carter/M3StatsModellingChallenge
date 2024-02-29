@@ -421,7 +421,6 @@ for city in cities:
 
     # Seperate by country as income data is different for UK and US
     if cities[city]["Country"] == "UK":
-        print(cities[city])
         probNumerator += (cities[city]["Lessthan10k"]*0.5 + cities[city]["10kto15k"]*0.7059 + cities[city]["15kto20k"]*0.7632 + cities[city]["20kto30k"]*0.8 +
                            cities[city]["30kto40k"]*0.8167 + cities[city]["40kto50k"]*0.8429 + cities[city]["Greaterthan50k"]*0.8889)
     else:
