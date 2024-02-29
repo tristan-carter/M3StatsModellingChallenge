@@ -271,8 +271,8 @@ cities = {
         "30kto40k$": 0.039,
         "40kto50k$": 0.036,
         "50kto60k$": 0.040,
-        "60k-75k$": 0.060,
-        "75to100k$": 0.082,
+        "60kto75k$": 0.060,
+        "75kto100k$": 0.082,
         "100kto125k$": 0.102,
         "125kto150k$": 0.079,
         "150kto200k$": 0.131,
@@ -297,12 +297,15 @@ cities = {
         "30kto40k$": 0.073,
         "40kto50k$": 0.077,
         "50kto60k$": 0.079,
-        "60k-75k$": 0.105,
-        "75to100k$": 0.135,
+        "60kto75k$": 0.105,
+        "75kto100k$": 0.135,
         "100kto125k$": 0.096,
         "125kto150k$": 0.071,
         "150kto200k$": 0.09,
         "Greaterthan200k$": 0.091,
+        },
+    "Scranton": {
+        "Country": "USA",
         "PercentageBelow20": 0.225,
         "Percentage20To29": 0.123,
 
@@ -313,7 +316,6 @@ cities = {
         "PostGraduateDegree": 0.095,
 
         "CommuteTime": 23.7,
-
         
         "Lessthan10k$": 0.064,
         "10kto20k$": 0.144,
@@ -321,8 +323,8 @@ cities = {
         "30kto40k$": 0.116,
         "40kto50k$": 0.097,
         "50kto60k$": 0.077,
-        "60k-75k$": 0.078,
-        "75to100k$": 0.092,
+        "60kto75k$": 0.078,
+        "75kto100k$": 0.092,
         "100kto125k$": 0.059,
         "125kto150k$": 0.054,
         "150kto200k$": 0.035,
@@ -347,7 +349,7 @@ cities = {
         "20kto30k": 0.2961,
         "30kto40k": 0.2012,
         "40kto50k": 0.1101,
-        "Geaterthan50k": 0.1176
+        "Greaterthan50k": 0.1176
     },
     "Barry (Wales)": {
         "Country": "UK",
@@ -368,7 +370,7 @@ cities = {
         "20kto30k": 0.2961,
         "30kto40k": 0.2012,
         "40kto50k": 0.1101,
-        "Geaterthan50k": 0.1176
+        "Greaterthan50k": 0.1176
     }
 }
 
@@ -419,37 +421,24 @@ for city in cities:
 
     # Seperate by country as income data is different for UK and US
     if cities[city]["Country"] == "UK":
-        probNumerator += (cities[city]["Lessthan10k"]*0.5 + cities[city]["10kto15k"]*0.7059 + cities[city]["15to20k"]*0.7632 + cities[city]["20kto30k"]*0.8 +
+        print(cities[city])
+        probNumerator += (cities[city]["Lessthan10k"]*0.5 + cities[city]["10kto15k"]*0.7059 + cities[city]["15kto20k"]*0.7632 + cities[city]["20kto30k"]*0.8 +
                            cities[city]["30kto40k"]*0.8167 + cities[city]["40kto50k"]*0.8429 + cities[city]["Greaterthan50k"]*0.8889)
     else:
         probNumerator += (cities[city]["Greaterthan200k$"]+cities[city]["150kto200k$"]+cities[city]["125kto150k$"]+
                           cities[city]["100kto125k$"]+cities[city]["75kto100k$"]+cities[city]["60kto75k$"]*(185/237))*0.8889 # >£50,000
         
-        probNumerator += (cities[city]["60kto75k$"]*(52/237)+cities[city]["50kto60k$"]*(74/79)) # £40,000-£50,000
+        probNumerator += (cities[city]["60kto75k$"]*(52/237)+cities[city]["50kto60k$"]*(74/79))*0.8429 # £40,000-£50,000
 
-        probNumerator += (cities[city]["50to60k$"]*(5/79)+cities[city]["40-50k$"]+cities[city]["30to40k$"]*(16/79)) # £30,000-£40,000
+        probNumerator += (cities[city]["50kto60k$"]*(5/79)+cities[city]["40kto50k$"]+cities[city]["30kto40k$"]*(16/79))*0.8167 # £30,000-£40,000
 
-        probNumerator += (cities[city]["30to40k$"]*(63/79)+cities[city]["20to30k$"]*(37/79)) # £20,000-£30,000
+        probNumerator += (cities[city]["30kto40k$"]*(63/79)+cities[city]["20kto30k$"]*(37/79))*0.8 # £20,000-£30,000
 
-        probNumerator += (cities[city]["20to30k$"]*(42/79)+cities[city]["10to20k$"]*(8/79)) # £15,000-£20,000
+        probNumerator += (cities[city]["20kto30k$"]*(42/79)+cities[city]["10kto20k$"]*(8/79))*0.7632 # £15,000-£20,000
 
-        probNumerator += (cities[city]["10to20k$"]*(50/79)) # £10,000-£15,000
+        probNumerator += (cities[city]["10kto20k$"]*(50/79))*0.7059 # £10,000-£15,000
 
-        probNumerator += (cities[city]["Lessthan10k"]+cities[city]["10to20k$"]*(21/79)) # <£10,000
-        
-
-
-        probNumerator += (cities[city]["10kto20k$"])*0.037
-        probNumerator += (cities[city]["20kto30k$"])*0.033
-        probNumerator += (cities[city]["30kto40k$"])*0.039
-        probNumerator += (cities[city]["40kto50k$"])*0.036
-        probNumerator += (cities[city]["50kto60k$"])*0.040
-        probNumerator += (cities[city]["60k-75k$"])*0.060
-        probNumerator += (cities[city]["75to100k$"])*0.082
-        probNumerator += (cities[city]["100kto125k$"])*0.102
-        probNumerator += (cities[city]["125kto150k$"])*0.079
-        probNumerator += (cities[city]["150kto200k$"])*0.131
-        probNumerator += (cities[city]["Greaterthan200k$"])*0.322
+        probNumerator += (cities[city]["Lessthan10k$"]+cities[city]["10kto20k$"]*(21/79))*0.5 # <£10,000
     
     probability = probNumerator/4
     probabilityOfWorkingFromHomePerCity[city] = probability
