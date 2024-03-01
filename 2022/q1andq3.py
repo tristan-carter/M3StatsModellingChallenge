@@ -241,16 +241,9 @@ for country in [numUSEmployeesByIndustryByCity, numUKEmployeesByIndustryByCity]:
         print(f'  Percent of workers who can work from home in 2024:', round(value2024, 2), '%')
         print(f'  Percent of workers who can work from home in 2027:', round(value2027, 2), '%')
 
-# pribability of working at home per city out of remote-ready workers calculated via model for Q2
-#probabilityOfWorkingFromHomePerCity = {
-#    "Seattle": 0.2148,
-#    "Omaha": 0.2076,
-#    "Scranton": 0.2036,
-#    "Liverpool": 0.2134,
-#    "Barry (Wales)": 0.2076,
-#}
+# probability of working at home per city out of remote-ready workers calculated via model for Q3
 
-# Data from reference D2 City Demographic Data
+# Data from reference D2 City Demographic Data + some income data frin online sources
 cities = {
     "Seattle": {
         "Country": "USA",
@@ -375,8 +368,8 @@ cities = {
 }
 
 probabilityOfWorkingFromHomePerCity = {
-    "Seattle": 0.2157,
-    "Omaha": 0.2833, # needs double checking 
+    "Seattle": 0,
+    "Omaha": 0,
     "Scranton": 0,
     "Liverpool": 0,
     "Barry (Wales)": 0,
@@ -384,12 +377,27 @@ probabilityOfWorkingFromHomePerCity = {
 
 # calculates probability of working from home per city out of remote-ready workers
 for city in cities:
+    print("\n")
+    print(city + ":")
     probNumerator = 0
-    # Age, must interpolate as data ranges do not match are solution paper table ranges
-    probNumerator += (cities[city]["PercentageBelow20"] * (2/20) + cities[city]["Percentage20To29"] * (5/9))*0.27 # 18-25
-    probNumerator += (cities[city]["Percentage20To29"]*(4/9) + (1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (11/46))*0.41 # 26-41
-    probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (16/46))*0.40 # 42-57
-    probNumerator += ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (19/46))*0.38 # 58-76
+    # Age, must interpolate as data ranges do not match our solution paper table ranges
+    barProbability = (cities[city]["PercentageBelow20"] * (2/20) + cities[city]["Percentage20To29"] * (5/9))*0.27 # 18-25
+    print("    18-25:" + str(barProbability))
+    probNumerator += barProbability
+
+    barProbability = (cities[city]["Percentage20To29"]*(4/9) + (1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (11/46))*0.41 # 26-41
+    print("    26-41:" + str(barProbability))
+    probNumerator += barProbability
+
+    barProbability = ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (16/46))*0.40 # 42-57
+    print("    42-57:" + str(barProbability))
+    probNumerator += barProbability
+
+    barProbability = ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (19/46))*0.38 # 58-76
+    print("    58-76:" + str(barProbability))
+    probNumerator += barProbability
+
+
 
     # Commute time
     if cities[city]["CommuteTime"] < 15:
