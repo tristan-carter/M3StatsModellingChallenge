@@ -378,23 +378,23 @@ probabilityOfWorkingFromHomePerCity = {
 # calculates probability of working from home per city out of remote-ready workers
 for city in cities:
     print("\n")
-    print(city + ":")
+    print(city + ": ")
     probNumerator = 0
     # Age, must interpolate as data ranges do not match our solution paper table ranges
     barProbability = (cities[city]["PercentageBelow20"] * (2/20) + cities[city]["Percentage20To29"] * (5/9))*0.27 # 18-25
-    print("    18-25:" + str(barProbability))
+    print("    18-25: " + str(round(barProbability, 2)))
     probNumerator += barProbability
 
     barProbability = (cities[city]["Percentage20To29"]*(4/9) + (1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (11/46))*0.41 # 26-41
-    print("    26-41:" + str(barProbability))
+    print("    26-41: " + str(round(barProbability, 2)))
     probNumerator += barProbability
 
     barProbability = ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (16/46))*0.40 # 42-57
-    print("    42-57:" + str(barProbability))
+    print("    42-57: " + str(round(barProbability, 2)))
     probNumerator += barProbability
 
     barProbability = ((1-cities[city]["PercentageBelow20"]-cities[city]["Percentage20To29"]) * (19/46))*0.38 # 58-76
-    print("    58-76:" + str(barProbability))
+    print("    58-76: " + str(round(barProbability, 2)))
     probNumerator += barProbability
 
 
@@ -414,16 +414,22 @@ for city in cities:
     # Education  attainment
         
     # degree or equivelent
-    probNumerator += (cities[city]["Bachelors"]+cities[city]["PostGraduateDegree"])*0.8701
+    barProbability = (cities[city]["Bachelors"]+cities[city]["PostGraduateDegree"])*0.8701
+    print("    Degree or equivelent: " + str(round(barProbability, 2)))
+    probNumerator += barProbability
 
     # Below degree level
-    probNumerator += (cities[city]["HS"]+cities[city]["SomeCollege"])*0.1299
+    barProbability = (cities[city]["HS"]+cities[city]["SomeCollege"])*0.1299
+    print("    Below degree level: " + str(round(barProbability, 2)))
+    probNumerator += barProbability
 
     # Other qualification
     # We don't have any data for what percentage of people have other qualifications so we can't calculate this
 
     # None
-    probNumerator += (cities[city]["LessthanHS"])*0.6667
+    barProbability = (cities[city]["LessthanHS"])*0.6667
+    print("    None: " + str(round(barProbability, 2)))
+    probNumerator += barProbability
 
     # Income, must also interpolate as data ranges do not match are solution paper table ranges
 
@@ -431,22 +437,31 @@ for city in cities:
     if cities[city]["Country"] == "UK":
         probNumerator += (cities[city]["Lessthan10k"]*0.5 + cities[city]["10kto15k"]*0.7059 + cities[city]["15kto20k"]*0.7632 + cities[city]["20kto30k"]*0.8 +
                            cities[city]["30kto40k"]*0.8167 + cities[city]["40kto50k"]*0.8429 + cities[city]["Greaterthan50k"]*0.8889)
+        print(cities[city]["Lessthan10k"]*0.5)
+        print(cities[city]["10kto15k"]*0.7059)
+        print(cities[city]["15kto20k"]*0.7632)
+        print(cities[city]["20kto30k"]*0.8)
+        print(cities[city]["30kto40k"]*0.8167)
+        print(cities[city]["40kto50k"]*0.8429)
+        print(cities[city]["Greaterthan50k"]*0.8889)
     else:
         probNumerator += (cities[city]["Greaterthan200k$"]+cities[city]["150kto200k$"]+cities[city]["125kto150k$"]+
                           cities[city]["100kto125k$"]+cities[city]["75kto100k$"]+cities[city]["60kto75k$"]*(185/237))*0.8889 # >£50,000
-        
+        print((cities[city]["Greaterthan200k$"]+cities[city]["150kto200k$"]+cities[city]["125kto150k$"]+
+                          cities[city]["100kto125k$"]+cities[city]["75kto100k$"]+cities[city]["60kto75k$"]*(185/237))*0.8889)
         probNumerator += (cities[city]["60kto75k$"]*(52/237)+cities[city]["50kto60k$"]*(74/79))*0.8429 # £40,000-£50,000
+        print((cities[city]["60kto75k$"]*(52/237)+cities[city]["50kto60k$"]*(74/79))*0.8429)
 
         probNumerator += (cities[city]["50kto60k$"]*(5/79)+cities[city]["40kto50k$"]+cities[city]["30kto40k$"]*(16/79))*0.8167 # £30,000-£40,000
-
+        print((cities[city]["50kto60k$"]*(5/79)+cities[city]["40kto50k$"]+cities[city]["30kto40k$"]*(16/79))*0.8167)
         probNumerator += (cities[city]["30kto40k$"]*(63/79)+cities[city]["20kto30k$"]*(37/79))*0.8 # £20,000-£30,000
-
+        print((cities[city]["30kto40k$"]*(63/79)+cities[city]["20kto30k$"]*(37/79))*0.8)
         probNumerator += (cities[city]["20kto30k$"]*(42/79)+cities[city]["10kto20k$"]*(8/79))*0.7632 # £15,000-£20,000
-
+        print((cities[city]["20kto30k$"]*(42/79)+cities[city]["10kto20k$"]*(8/79))*0.7632)
         probNumerator += (cities[city]["10kto20k$"]*(50/79))*0.7059 # £10,000-£15,000
-
+        print((cities[city]["10kto20k$"]*(50/79))*0.7059)
         probNumerator += (cities[city]["Lessthan10k$"]+cities[city]["10kto20k$"]*(21/79))*0.5 # <£10,000
-    
+        print((cities[city]["Lessthan10k$"]+cities[city]["10kto20k$"]*(21/79))*0.5)
     probability = probNumerator/4
     probabilityOfWorkingFromHomePerCity[city] = probability
 
@@ -471,14 +486,14 @@ percentOfWorkersWorkingFromHomeByCity2027 = {
 
 # multiples probability of working at home per city out of remote-ready workers by percent of workers who can work from home in 2024 and 2027
 # to get percent of workers in each city who will work from home in 2024 and 2027
-print("2024: ")
+print("\n\n2024: ")
 for city in percentWorkersWhoCanWorkFromHome2024:
     percentOfWorkersWorkingFromHomeByCity2027[city] = percentWorkersWhoCanWorkFromHome2024[city] * probabilityOfWorkingFromHomePerCity[city]
-    print("    " + city + " in 2024:")
-    print(f"    Percent of workers working from home:", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
+    print("    " + city + " in 2024: ")
+    print(f"    Percent of workers working from home: ", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
 
 print("\n2027: ")
 for city in percentWorkersWhoCanWorkFromHome2027:
     percentOfWorkersWorkingFromHomeByCity2027[city] = percentWorkersWhoCanWorkFromHome2027[city] * probabilityOfWorkingFromHomePerCity[city]
-    print("    " + city + " in 2027:")
-    print(f"    Percent of workers working from home:", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
+    print("    " + city + " in 2027: ")
+    print(f"    Percent of workers working from home: ", round(percentOfWorkersWorkingFromHomeByCity2027[city], 2), "%\n")
