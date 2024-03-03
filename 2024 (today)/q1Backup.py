@@ -8,9 +8,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, r2_score
 
-
 # creates a filled in numpy array of years from 2011 to 2021
-censusYears = np.arange(2011, 2022, 1)
+censusYears = np.array([2011, 2021, 2022])
 
 # Manchester Census Data
 manchesterAgeCensus2011 = {
@@ -30,9 +29,7 @@ manchesterAgeCensus2011 = {
     "65-69": 13191,
     "70-74": 11576,
     "75-79": 9378,
-    "80-84": 7026,
-    "85-89": 4226,
-    "90+": 2147,
+    "80+": 13399,
 }
 
 
@@ -53,13 +50,32 @@ manchesterAgeCensus2021 = {
     "65-69": 16400,
     "70-74": 13800,
     "75-79": 9200,
-    "80-84": 6700,
-    "85-89": 3900,
-    "90+": 2100,
+    "80+": 12700,
+}
+
+manchesterAgeCensus2022 = {
+    "00-04": 34140,
+    "05-09": 36416,
+    "10-14": 36985,
+    "15-19": 45520,
+    "20-24": 68280,
+    "25-29": 55762,
+    "30-34": 48934,
+    "35-39": 42106,
+    "40-44": 36985,
+    "45-49": 30726,
+    "50-54": 30157,
+    "55-59": 27312,
+    "60-64": 22191,
+    "65-69": 17070,
+    "70-74": 13656,
+    "75-79": 9673,
+    "80+": 13087
 }
 
 
-# Housing Data for Manchester
+# Housing Data for Manchester from 
+housingDataYears = np.array([1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
 manchesterHousingData = {
     "Bungalow": np.array([
         1780,
@@ -92,7 +108,7 @@ manchesterHousingData = {
         2850,
         2850,
     ]),
-    "Flat/Maisonette": np.array([
+    "Flat / Maisonette": np.array([
         39620,
         40270,
         42600,
@@ -122,7 +138,6 @@ manchesterHousingData = {
         85420,
         88120,
         92150,
-
     ]),
     "Terraced House": np.array([
         59010,
@@ -172,7 +187,7 @@ manchesterHousingData = {
         52340,
         52550,
         52790,
-        52890
+        52890,
         53010,
         53090,
         53280,
@@ -185,7 +200,7 @@ manchesterHousingData = {
         55630,
         55990,
         56280,
-    ])
+    ]),
     "Detached House": np.array([
         2710,
         2860,
@@ -216,7 +231,7 @@ manchesterHousingData = {
         6180,
         6240,
         6290,
-    ])
+    ]),
      "Annexe": np.array([
         0,
         0,
@@ -247,8 +262,7 @@ manchesterHousingData = {
         30,
         30,
         30,
-
-     ])
+     ]),
      "Mobile Home": np.array([
         80,
         80,
@@ -279,8 +293,7 @@ manchesterHousingData = {
         120,
         120,
         120,
-
-     ])
+     ]),
       "Unknown": np.array([
         44810,
         41280,
@@ -311,18 +324,83 @@ manchesterHousingData = {
         650,
         670,
         670,
-
-      ])
-
+      ]),
 }
 
+# removes data in housing data from 1993 to 2002 as it is not relevant to the new shape of the data
+manchesterHousingData = {k: v[9:] for k, v in manchesterHousingData.items()}
+housingDataYears = housingDataYears[9:]
 
 
+# Turns housing data into a list then loops through it plotting a graph of each type of housing
+totalHouses = {
+    "2024": 0,
+    "2034": 0,
+    "2044": 0,
+    "2074": 0,
+}
+
+for key, value in list(manchesterHousingData.items()):
+    if key != "Unknown":
+        plt.plot(housingDataYears, value, label=key)
+        # plots linear regression line
+        m, b = np.polyfit(housingDataYears, value, 1)
+        # calculates the r2 score
+        r2 = r2_score(value, m*housingDataYears + b)
+
+        # does seperate linear regression for bungalows as the graph suggests there is a boom in bungalows prior to 2007 and then a slow decline
+        # therefore taking into account the boom in our linear regression would not be accurate to the current trend of the data
+        if key == "Bungalow":
+            bungalowHousingData = value[:5]
+            m, b = np.polyfit(housingDataYears[:5], bungalowHousingData, 1)
+            r2 = r2_score(bungalowHousingData, m*housingDataYears[:5] + b)
+
+        print(f"{key} r2 score: {r2}")
+        # extrapolates the data to 2054 and plots it
+        futureYears = np.arange(2021, 2074)
+        futureValues = m*futureYears + b
+        plt.plot(futureYears, futureValues, "g--")
+
+        # adds the future values to the total houses
+        totalHouses["2024"] += round(m*2024 + b)
+        totalHouses["2034"] += round(m*2034 + b)
+        totalHouses["2044"] += round(m*2044 + b)
+        totalHouses["2074"] += round(m*2074 + b)
+
+        print(f"{key} 2024: {round(m*2024 + b)}")
+        print(f"{key} 2034: {round(m*2034 + b)}")
+        print(f"{key} 2044: {round(m*2044 + b)}")
+        print(f"{key} 2074: {round(m*2074 + b)}")
+
+print("\n\n\n")
+print("Total Houses: ")
+print(totalHouses)
+# adds a legend below the graph
+plt.legend(loc="upper left", fontsize=8)
+plt.title("Manchester Housing Data")
+plt.xlabel("Year")
+plt.ylabel("Number of Houses")
+plt.show()
 
 # Census Modelling For Number of People in Each Age Category In Manchester
 
 # Gets the items in the census dictionary as a list then loops through it and plots 2011 vs 2021
 
+for key, value in manchesterAgeCensus2022.items():
+    # plots a line graph of the growth in population by age category over time
+    plt.scatter(censusYears, [manchesterAgeCensus2011[key], manchesterAgeCensus2021[key], value], label=key)
+    plt.plot(censusYears, [manchesterAgeCensus2011[key], manchesterAgeCensus2021[key], value], label=key)
+    # labels the x axis
+    plt.xlabel("Year")
+    # labels the y axis
+    plt.ylabel("Number of People")
+    
+# adds a legend below the graph
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+
+plt.show()
+
+'''
 # 2021 bar chart
 plt.bar(manchesterAgeCensus2021.keys(), manchesterAgeCensus2021.values())
 plt.title("2021 Census Data On Age Distribution In Manchester")
@@ -345,11 +423,17 @@ plt.xlabel("Age Categories")
 plt.ylabel("Number of People")
 plt.show()
 
-for key, value in manchesterAgeCensus2021.items():
-    pass
-
-
-
+# 2022 bar chart
+plt.bar(manchesterAgeCensus2022.keys(), manchesterAgeCensus2022.values())
+plt.title("2022 Census Data On Age Distribution In Manchester")
+# rotates the x axis labels by 90 degrees
+plt.xticks(rotation=90)
+# labels the x axis
+plt.xlabel("Age Categories")
+# labels the y axis
+plt.ylabel("Number of People")
+plt.show()
+'''
 
 # Brigton and Hove Census Data
 brightonAgeCensus2011 = {
@@ -390,4 +474,368 @@ brightonAgeCensus2021 = {
     "70-74": 10300,
     "75-79": 7100,
     "80+": 10800,
+}
+
+brightonAgeCensus2022 = {
+    "00-04": 11397,
+    "05-09": 12786,
+    "10-14": 14176,
+    "15-19": 18346,
+    "20-24": 28074,
+    "25-29": 20569,
+    "30-34": 20847,
+    "35-39": 19458,
+    "40-44": 19180,
+    "45-49": 19180,
+    "50-54": 21125,
+    "55-59": 18902,
+    "60-64": 14176,
+    "65-69": 11119,
+    "70-74": 9729,
+    "75-79": 8061,
+    "80+": 10563,
+}
+
+# Census Modelling For Number of People in Each Age Category In Brighton and Hove
+# Census Modelling For Number of People in Each Age Category In Brighton
+# Gets the items in the census dictionary as a list then loops through it and plots 2011 vs 2021
+
+for key, value in brightonAgeCensus2022.items():
+    # plots a line graph of the growth in population by age category over time
+    plt.scatter(censusYears, [brightonAgeCensus2011[key], brightonAgeCensus2021[key], value], label=key)
+    plt.plot(censusYears, [brightonAgeCensus2011[key], brightonAgeCensus2021[key], value], label=key)
+    # labels the x axis
+    plt.xlabel("Year")
+    # labels the y axis
+    plt.ylabel("Number of People")
+    
+# adds a legend below the graph
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+
+plt.show()
+
+# Housing Data for Brighton and Hove
+brightonhoveHousingData = {
+    "Bungalow": np.array([
+        5680,
+        6180,
+        6580,
+        6930,
+        7390,
+        7700,
+        7970,
+        8210,
+        8420,
+        8640,
+        8750,
+        8780,
+        8800,
+        8830,
+        8830,
+        8840,
+        8850,
+        8850,
+        8840,
+        8840,
+        8830,
+        8830,
+        8830,
+        8820,
+        8820,
+        8820,
+        8820,
+        8810,
+        8810,
+    ]),
+    "Flat / Maisonette": np.array([
+        29190, 
+        32430,
+        35610,
+        39200,
+        42310,
+        45350,
+        48150, 
+        51600, 
+        54250, 
+        56470, 
+        58030, 
+        58810, 
+        59580, 
+        60120, 
+        60770, 
+        61530, 
+        61980, 
+        62700, 
+        63060, 
+        63650, 
+        63880, 
+        64400, 
+        65080, 
+        65730, 
+        66330, 
+        66730, 
+        67080, 
+        67550, 
+        68060, 
+    ]),
+    "Terraced House": np.array([
+        15490, 
+        16800, 
+        18090, 
+        19650, 
+        21030, 
+        22170, 
+        23130, 
+        24230, 
+        25060,
+        25830, 
+        26370, 
+        26580, 
+        26800, 
+        26920,
+        27060, 
+        27120, 
+        27210, 
+        27250, 
+        27280, 
+        27310, 
+        27380, 
+        27430, 
+        27490, 
+        27590, 
+        27650, 
+        27670, 
+        27690, 
+        27730, 
+        27740, 
+    ]),
+    "Semi-Detached House": np.array([
+        11020, 
+        11900, 
+        12600, 
+        13310, 
+        14080, 
+        14620, 
+        15100, 
+        15700, 
+        16120, 
+        16570, 
+        17150, 
+        17240, 
+        17320, 
+        17360, 
+        17390, 
+        17420, 
+        17460, 
+        17470, 
+        17490, 
+        17510, 
+        17540, 
+        17560, 
+        17590, 
+        17600, 
+        17630, 
+        17640, 
+        17650, 
+        17690, 
+        17700, 
+    ]),
+    "Detached House": np.array([
+        4260,
+        4580,
+        4920,
+        5360,
+        5700,
+        6010,
+        6220,
+        6500,
+        6690,
+        6870,
+        6950,
+        6990,
+        7040,
+        7050,
+        7060,
+        7100,
+        7130,
+        7170,
+        7190,
+        7220,
+        7230,
+        7260,
+        7290,
+        7310,
+        7320,
+        7340,
+        7360,
+        7380,
+        7400,
+    ]),
+     "Annexe": np.array([
+        0,
+        0,
+        0,
+        0,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        20,
+        20,
+        30,
+        30,
+        40,
+        40,
+        50,
+        50,
+        60,
+        70,
+        70,
+        70,
+        90,
+        90,
+        90,
+        100,
+     ]),
+     "Mobile Home": np.array([
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        10,
+        10,
+        10,
+        10,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        70,
+        40,
+        30,
+        70,
+        80,
+        70,
+        80,
+        80,
+        80,
+        70,
+        70,
+
+     ]),
+      "Unknown": np.array([
+        49010,
+        42720,
+        37820,
+        32320,
+        26800,
+        22250,
+        17870,
+        12930,
+        8680,
+        5330,
+        3060,
+        2320,
+        1940,
+        1800,
+        1720,
+        1650,
+        1570,
+        1520,
+        1490,
+        1460,
+        1490,
+        1470,
+        1420,
+        1440,
+        1440,
+        1440,
+        1450,
+        1370,
+        1360,
+      ]),
+}
+
+# removes data in housing data from 1993 to 2002 as it is not relevant to the new shape of the data
+brightonhoveHousingData = {k: v[9:] for k, v in brightonhoveHousingData.items()}
+
+# Turns housing data into a list then loops through it plotting a graph of each type of housing
+totalHouses = {
+    "2024": 0,
+    "2034": 0,
+    "2044": 0,
+    "2074": 0,
+}
+
+for key, value in list(brightonhoveHousingData.items()):
+    if key != "Unknown":
+        plt.plot(housingDataYears, value, label=key)
+        # plots linear regression line
+        m, b = np.polyfit(housingDataYears, value, 1)
+        # calculates the r2 score
+        r2 = r2_score(value, m*housingDataYears + b)
+
+        # does seperate linear regression for bungalows as the graph suggests there is a boom in bungalows prior to 2007 and then a slow decline
+        # therefore taking into account the boom in our linear regression would not be accurate to the current trend of the data
+        if key == "Bungalow":
+            bungalowHousingData = value[:5]
+            m, b = np.polyfit(housingDataYears[:5], bungalowHousingData, 1)
+            r2 = r2_score(bungalowHousingData, m*housingDataYears[:5] + b)
+
+        print(f"{key} r2 score: {r2}")
+        # extrapolates the data to 2054 and plots it
+        futureYears = np.arange(2021, 2074)
+        futureValues = m*futureYears + b
+        plt.plot(futureYears, futureValues, "g--")
+
+        # adds the future values to the total houses
+        totalHouses["2024"] += round(m*2024 + b)
+        totalHouses["2034"] += round(m*2034 + b)
+        totalHouses["2044"] += round(m*2044 + b)
+        totalHouses["2074"] += round(m*2074 + b)
+
+        print(f"{key} 2024: {round(m*2024 + b)}")
+        print(f"{key} 2034: {round(m*2034 + b)}")
+        print(f"{key} 2044: {round(m*2044 + b)}")
+        print(f"{key} 2074: {round(m*2074 + b)}")
+
+print("\n\n\n")
+print("Total Houses: ")
+print(totalHouses)
+# adds a legend below the graph
+plt.legend(loc="upper left", fontsize=8)
+plt.title("Brighton and Hove Housing Data")
+plt.xlabel("Year")
+plt.ylabel("Number of Houses")
+plt.show()
+
+manchesterAgeCensus2022 = {
+    "00-04": 34140,
+    "05-09": 36416,
+    "10-14": 36985,
+    "15-19": 45520,
+    "20-24": 68280,
+    "25-29": 55762,
+    "30-34": 48934,
+    "35-39": 42106,
+    "40-44": 36985,
+    "45-49": 30726,
+    "50-54": 30157,
+    "55-59": 27312,
+    "60-64": 22191,
+    "65-69": 17070,
+    "70-74": 13656,
+    "75-79": 9673,
+    "80+": 13087 
 }
