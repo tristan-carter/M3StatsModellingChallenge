@@ -1146,21 +1146,75 @@ deathRates = {
     "65-69": 0.01177,
     "70-74": 0.01879,
     "75-79": 0.03286,
-    "80+": 0.72235
+    "80+": 0.1456,
 }
 
-numberOfPeopleByAgeCategoryInThousands = manchesterAgeCensus2022
-# divides the number of people in each age category by 1000 to get the number of people in each age category in thousands
-numberOfPeopleByAgeCategoryInTens = {k: round(v/100) for k, v in numberOfPeopleByAgeCategoryInThousands.items()}
+pastPopulationData2001to2022 = np.array([
+    422915,
+    428221,
+    436727,
+    444925,
+    455745,
+    463749,
+    470538,
+    477408,
+    483784,
+    492598,
+    502902,
+    506869,
+    510783,
+    515360,
+    523321,
+    533446,
+    536961,
+    540675,
+    545947,
+    547340,
+    550630,
+    568996,
+])
+
+# age category order
+ageCategories = ["00-04", "05-09", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+"]
+
+numberOfPeopleByAgeCategoryInHundreds = manchesterAgeCensus2022
+# divides the number of people in each age category by 1000 to get the number of people in each age category in Hundreds
+numberOfPeopleByAgeCategoryInHundreds = {k: v/100 for k, v in numberOfPeopleByAgeCategoryInHundreds.items()}
+totalPopulationByYear = np.array([])
+print(numberOfPeopleByAgeCategoryInHundreds)
 
 # loops through from year 2022 to 2074
 
-for year in range(2022, 2074):
-    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategoryInThousands.items():
-        for personNumber in range(numberOfPeople):
-            if np.random.rand() < deathRates[ageCategory]:
-                numberOfPeopleByAgeCategoryInThousands[ageCategory] -= 100
-            if ageCategory in extrapolatedBirthRates:
-                if np.random.rand() < extrapolatedBirthRates[ageCategory][year-2007]:
-                    numberOfPeopleByAgeCategoryInThousands[ageCategory] += 100
-print(numberOfPeopleByAgeCategoryInThousands)
+for year in range(2022, 2074, 1):
+    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategoryInHundreds.items():
+        if ageCategory in extrapolatedBirthRates:
+            # adds the number of births to the number of people in each age category
+            numberOfBirthsInHundreds = extrapolatedBirthRates[ageCategory][year-2022]
+            numberOfPeopleByAgeCategoryInHundreds["00-04"] += numberOfBirthsInHundreds
+        # calculates the number of deaths for each age category
+        numberOfDeathsInHundreds = deathRates[ageCategory]*numberOfPeople
+        # subtracts the number of deaths from the number of people in each age category
+        numberOfPeopleByAgeCategoryInHundreds[ageCategory] -= numberOfDeathsInHundreds
+    
+    # increments by 5 years
+    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategoryInHundreds.items():
+        nextAgeCategoryIndex = ageCategories.index(ageCategory) + 1
+        if nextAgeCategoryIndex < len(ageCategories):
+            nextAgeCategory = ageCategories[nextAgeCategoryIndex]
+            numberOfPeopleByAgeCategoryInHundreds[ageCategory] += numberOfPeopleByAgeCategoryInHundreds[ageCategory] / 5
+            numberOfPeopleByAgeCategoryInHundreds[ageCategory] -= numberOfPeopleByAgeCategoryInHundreds[ageCategory] / 5
+    # adds the total population to the total population by year
+    totalPopulationByYear = np.append(totalPopulationByYear, sum(numberOfPeopleByAgeCategoryInHundreds.values()))
+
+
+print(numberOfPeopleByAgeCategoryInHundreds)
+
+# plots past population data
+plt.plot(np.arange(2001, 2023), pastPopulationData2001to2022)
+
+# plots the total population by year
+plt.plot(np.arange(2022, 2074), totalPopulationByYear*100)
+plt.title("Total Population By Year In Manchester")
+plt.xlabel("Year")
+plt.ylabel("Total Population")
+plt.show()
