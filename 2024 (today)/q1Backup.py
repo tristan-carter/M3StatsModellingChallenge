@@ -1149,12 +1149,18 @@ deathRates = {
     "80+": 0.72235
 }
 
-numberOfPeopleByAgeCategory = np.array([manchesterAgeCensus2022[key] for key in sorted(manchesterAgeCensus2022.keys())])
+numberOfPeopleByAgeCategoryInThousands = manchesterAgeCensus2022
+# divides the number of people in each age category by 1000 to get the number of people in each age category in thousands
+numberOfPeopleByAgeCategoryInTens = {k: round(v/100) for k, v in numberOfPeopleByAgeCategoryInThousands.items()}
 
-for year in range(2022, 2074, 5):
-    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategory.items():
+# loops through from year 2022 to 2074
+
+for year in range(2022, 2074):
+    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategoryInThousands.items():
         for personNumber in range(numberOfPeople):
             if np.random.rand() < deathRates[ageCategory]:
-                manchesterAgeCensus2022[ageCategory] -= 1
-            if np.random.rand() < extrapolatedBirthRates[ageCategory]:
-                manchesterAgeCensus2022[ageCategory] += 1
+                numberOfPeopleByAgeCategoryInThousands[ageCategory] -= 100
+            if ageCategory in extrapolatedBirthRates:
+                if np.random.rand() < extrapolatedBirthRates[ageCategory][year-2007]:
+                    numberOfPeopleByAgeCategoryInThousands[ageCategory] += 100
+print(numberOfPeopleByAgeCategoryInThousands)
