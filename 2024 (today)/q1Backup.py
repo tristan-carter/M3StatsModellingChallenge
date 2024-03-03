@@ -839,3 +839,322 @@ manchesterAgeCensus2022 = {
     "75-79": 9673,
     "80+": 13087 
 }
+
+# Q2 Monte Carlo Simululation for population growth in Manchester and Brighton and Hove over 5 year periods
+# Manchester
+
+# deaths for each age category
+deathRates = {
+    "00-04": 0.001,
+    "05-09": 0.001,
+    "10-14": 0.001,
+    "15-19": 0.001,
+    "20-24": 0.001,
+    "25-29": 0.001,
+    "30-34": 0.001,
+    "35-39": 0.001,
+    "40-44": 0.001,
+    "45-49": 0.001,
+    "50-54": 0.001,
+    "55-59": 0.001,
+    "60-64": 0.001,
+    "65-69": 0.001,
+    "70-74": 0.001,
+    "75-79": 0.001,
+    "80+": 0.001,
+}
+
+# births for each age category
+manchesterBirthRates = {
+    "00-04": 0.001,
+    "05-09": 0.001,
+    "10-14": 0.001,
+    "15-19": 0.001,
+    "20-24": 0.001,
+    "25-29": 0.001,
+    "30-34": 0.001,
+    "35-39": 0.001,
+    "40-44": 0.001,
+    "45-49": 0.001,
+    "50-54": 0.001,
+    "55-59": 0.001,
+    "60-64": 0.001,
+    "65-69": 0.001,
+    "70-74": 0.001,
+    "75-79": 0.001,
+    "80+": 0.001,
+}
+
+for ageCategory, numberOfPeople in manchesterAgeCensus2022:
+    for personNumber in range(numberOfPeople):
+        if np.random.rand() < deathRates[ageCategory]:
+            manchesterAgeCensus2022[ageCategory] -= 1
+        if np.random.rand() < manchesterBirthRates[ageCategory]:
+            manchesterAgeCensus2022[ageCategory] += 1
+
+# Turns housing data into a list then loops through it plotting a graph of each type of housing
+totalHouses = {
+    "2024": 0,
+    "2034": 0,
+    "2044": 0,
+    "2074": 0,
+}
+
+# Q2 model for birth rate probabilities per age group
+birthRatesData = {
+    "15-19": np.array([
+        8.3,
+        10.0,
+        11.2,
+        11.9,
+        12.7,
+        13.7,
+        14.5,
+        15.6,
+        17.4,
+        19.9,
+        21.2,
+        23.4,
+        24.8,
+        25.7,
+        25.9,
+        26.6,
+        26.4,
+    ]),
+    "20-24": np.array([
+        42.3,
+        44.8,
+        48.4,
+        50.5,
+        53.7,
+        55.8,
+        58.0,
+        60.1,
+        63.7,
+        69.9,
+        71.6,
+        74.1,
+        73.9,
+        74.1,
+        72.6,
+        72.1,
+        70.5,
+    ]),
+    "25-29": np.array([
+        82.5,
+        84.6,
+        88.3,
+        91.3,
+        95.3,
+        98.8,
+        100.8,
+        100.8,
+        101.5,
+        105.1,
+        104.3,
+        104.1,
+        102.4,
+        103.0,
+        100.1,
+        97.9,
+        96.0,
+    ]),
+    "30-34": np.array([
+        101.1,
+        102.5,
+        104.7,
+        106.8,
+        109.8,
+        112.0,
+        111.0,
+        110.4,
+        109.4,
+        113.9,
+        111.9,
+        112.3,
+        108.7,
+        109.8,
+        107.8,
+        103.4,
+        99.9,
+    ]),
+    "35-39": np.array([
+        60.8,
+        59.8,
+        61.9,
+        63.4,
+        65.1,
+        66.9,
+        66.0,
+        64.5,
+        62.9,
+        63.7,
+        62.1,
+        60.3,
+        58.1,
+        57.8,
+        56.5,
+        53.6,
+        50.3,
+    ]),
+    "40 and over": np.array([
+        15.9,
+        16.0,
+        16.5,
+        16.1,
+        16.1,
+        15.9,
+        15.2,
+        14.7,
+        14.5,
+        14.6,
+        14.2,
+        13.4,
+        12.9,
+        12.6,
+        12.0,
+        11.4,
+        10.8,
+    ])
+}
+
+# flips the birth rates data so that the years are in ascending order
+birthRatesData = {k: v[::-1] for k, v in birthRatesData.items()}
+
+# removes the first 2 years of data as it is not relevant to the new shape of the data
+birthRatesData = {k: v[2:] for k, v in birthRatesData.items()}
+
+birthRateYears = np.arange(2007, 2022)
+
+totalBirthRateByYear = np.zeros(2074-2007)
+
+extrapolatedBirthRates = {k: np.array([]) for k in birthRatesData.keys()}
+
+# loops through the birth rates data and plots a graph of each age group
+for key, value in birthRatesData.items():
+    # plots a line graph of the growth in population by age category over time
+    #plt.plot(birthRateYears, value, label=key)
+
+    # plots a logarithmic regression line
+    birthRateGradient, birthRateYIntercept = np.polyfit(birthRateYears, np.log(value), 1)
+
+    # calculates the r2 score
+    r2 = r2_score(np.log(value), birthRateGradient*birthRateYears + birthRateYIntercept)
+
+    # does linear regression for over 40s as the graph suggests there is a unrealistically large increase in birth rates over time
+    if key == "40 and over":
+        birthRateGradient, birthRateYIntercept = np.polyfit(birthRateYears, value, 1)
+        r2 = r2_score(value, birthRateGradient*birthRateYears + birthRateYIntercept)
+
+    print(f"{key} r2 score: {r2}")
+    # extrapolates the data to 2054 and plots it
+    futureYears = np.arange(2007, 2074)
+    futureValues = np.exp(birthRateGradient*futureYears + birthRateYIntercept)
+    if key == "40 and over":
+        futureValues = birthRateGradient*futureYears + birthRateYIntercept
+
+    # adds the future values to the total birth rate by year
+    totalBirthRateByYear += futureValues
+
+    # adds the future values to the extrapolated birth rates
+    extrapolatedBirthRates[key] = futureValues
+    #plt.plot(futureYears, futureValues, "g--")
+    #plt.title(f"Birth Rates For {key} Age Group")
+    #plt.xlabel("Year")
+    #plt.ylabel("Birth Rate")
+    #plt.show()
+
+# plots the total birth rate by year
+plt.plot(np.arange(2007, 2074), totalBirthRateByYear)
+plt.title("Extrapolated Total Birth Rate By Year")
+plt.xlabel("Year")
+plt.ylabel("Birth Rate")
+plt.show()
+
+# Plots the extrapolated birth rates in one graph
+for key, value in extrapolatedBirthRates.items():
+    plt.scatter(birthRateYears, birthRatesData[key], label=key)
+    plt.plot(np.arange(2007, 2074), value, label=key)
+plt.title("Extrapolated Birth Rates By Year")
+plt.xlabel("Year")
+plt.ylabel("Birth Rate")
+# Places legend below the graph
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+plt.show()
+
+
+for key, value in list(brightonhoveHousingData.items()):
+    if key != "Unknown":
+        plt.plot(housingDataYears, value, label=key)
+        # plots linear regression line
+        m, b = np.polyfit(housingDataYears, value, 1)
+        # calculates the r2 score
+        r2 = r2_score(value, m*housingDataYears + b)
+
+        # does seperate linear regression for bungalows as the graph suggests there is a boom in bungalows prior to 2007 and then a slow decline
+        # therefore taking into account the boom in our linear regression would not be accurate to the current trend of the data
+        if key == "Bungalow":
+            bungalowHousingData = value[:5]
+            m, b = np.polyfit(housingDataYears[:5], bungalowHousingData, 1)
+            r2 = r2_score(bungalowHousingData, m*housingDataYears[:5] + b)
+
+        print(f"{key} r2 score: {r2}")
+        # extrapolates the data to 2054 and plots it
+        futureYears = np.arange(2021, 2074)
+        futureValues = m*futureYears + b
+        plt.plot(futureYears, futureValues, "g--")
+
+        # adds the future values to the total houses
+        totalHouses["2024"] += round(m*2024 + b)
+        totalHouses["2034"] += round(m*2034 + b)
+        totalHouses["2044"] += round(m*2044 + b)
+        totalHouses["2074"] += round(m*2074 + b)
+
+        print(f"{key} 2024: {round(m*2024 + b)}")
+        print(f"{key} 2034: {round(m*2034 + b)}")
+        print(f"{key} 2044: {round(m*2044 + b)}")
+        print(f"{key} 2074: {round(m*2074 + b)}")
+
+print("\n\n\n")
+print("Total Houses: ")
+print(totalHouses)
+# adds a legend below the graph
+plt.legend(loc="upper left", fontsize=8)
+plt.title("Brighton and Hove Housing Data")
+plt.xlabel("Year")
+plt.ylabel("Number of Houses")
+plt.show()
+
+# Q2 Monte Carlo Simululation for population growth in Manchester and Brighton and Hove over 5 year periods
+# Manchester
+
+# deaths for each age category
+deathRates = {
+    "00-04": 0.0009,
+    "05-09": 0.0000737,
+    "10-14": 0.000093,
+    "15-19": 0.0002297,
+    "20-24": 0.0003447,
+    "25-29": 0.0004441,
+    "30-34": 0.0006076,
+    "35-39": 0.0008975,
+    "40-44": 0.001175,
+    "45-49": 0.002072,
+    "50-54": 0.003078,
+    "55-59": 0.004689,
+    "60-64": 0.007491,
+    "65-69": 0.01177,
+    "70-74": 0.01879,
+    "75-79": 0.03286,
+    "80+": 0.72235
+}
+
+numberOfPeopleByAgeCategory = np.array([manchesterAgeCensus2022[key] for key in sorted(manchesterAgeCensus2022.keys())])
+
+for year in range(2022, 2074, 5):
+    for ageCategory, numberOfPeople in numberOfPeopleByAgeCategory.items():
+        for personNumber in range(numberOfPeople):
+            if np.random.rand() < deathRates[ageCategory]:
+                manchesterAgeCensus2022[ageCategory] -= 1
+            if np.random.rand() < extrapolatedBirthRates[ageCategory]:
+                manchesterAgeCensus2022[ageCategory] += 1
