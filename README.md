@@ -1,0 +1,1 @@
+Code from a statistics competition in 2024 which I did in a team of 5 as the programemr, I chose to use Jupyter Notebook over Matlab due to my belief that using Jupyter Notebook allows use of a wider range of libraries and tools than Matlab.
